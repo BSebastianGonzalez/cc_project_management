@@ -4,6 +4,7 @@ com\cc\be\model\NivelEstudios.class
 com\cc\be\model\Proyecto.class
 com\cc\be\dto\ProyectoDTO.class
 com\cc\be\repository\ProyectoRepository.class
+com\cc\be\config\WebConfig.class
 com\cc\be\controller\ProyectoController.class
 com\cc\be\repository\ArchivoRepository.class
 com\cc\be\config\CloudinaryConfig.class
