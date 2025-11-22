@@ -1,12 +1,14 @@
 package com.cc.be.service;
 
 import com.cc.be.dto.ProyectoDTO;
+import com.cc.be.model.Archivo;
 import com.cc.be.model.Proyecto;
 import com.cc.be.repository.ProyectoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -52,5 +54,11 @@ public class ProyectoService {
             proyectoRepository.delete(proyecto);
             return true;
         }).orElse(false);
+    }
+
+    public List<Archivo> getArchivosByProyectoId(Long id) {
+        return proyectoRepository.findById(id)
+                .map(Proyecto::getArchivos)
+                .orElse(Collections.emptyList());
     }
 }

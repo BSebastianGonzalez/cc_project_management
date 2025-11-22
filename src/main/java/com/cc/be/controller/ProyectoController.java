@@ -1,6 +1,7 @@
 package com.cc.be.controller;
 
 import com.cc.be.dto.ProyectoDTO;
+import com.cc.be.model.Archivo;
 import com.cc.be.model.Proyecto;
 import com.cc.be.service.ProyectoService;
 import lombok.RequiredArgsConstructor;
@@ -38,5 +39,11 @@ public class ProyectoController {
     @DeleteMapping("/{id}")
     public boolean delete(@PathVariable Long id) {
         return proyectoService.deleteProyecto(id);
+    }
+
+
+    @GetMapping("/{id}/archivos")
+    public List<Archivo> getArchivos(@PathVariable Long id) {
+        return proyectoService.getArchivosByProyectoId(id);
     }
 }
