@@ -27,10 +27,14 @@ public class ProyectoService {
         proyecto.setObjetivoEspecifico(dto.getObjetivoEspecifico());
         proyecto.setJustificacion(dto.getJustificacion());
 
+        proyecto.setNivelEstudio(dto.getNivelEstudio());
+        proyecto.setLineasInvestigacionIds(dto.getLineasInvestigacionIds());
+
         proyecto.setFechaCreacion(LocalDateTime.now());
 
         return proyectoRepository.save(proyecto);
     }
+
 
     public Proyecto getProyectoById(Long id) {
         return proyectoRepository.findById(id).orElse(null);
@@ -42,13 +46,19 @@ public class ProyectoService {
 
     public Proyecto updateProyecto(Long id, ProyectoDTO dto) {
         return proyectoRepository.findById(id).map(proyecto -> {
+
             proyecto.setTitulo(dto.getTitulo());
             proyecto.setResumen(dto.getResumen());
             proyecto.setPalabrasClave(dto.getPalabrasClave());
             proyecto.setObjetivoGeneral(dto.getObjetivoGeneral());
             proyecto.setObjetivoEspecifico(dto.getObjetivoEspecifico());
             proyecto.setJustificacion(dto.getJustificacion());
+
+            proyecto.setNivelEstudio(dto.getNivelEstudio());
+            proyecto.setLineasInvestigacionIds(dto.getLineasInvestigacionIds());
+
             return proyectoRepository.save(proyecto);
+
         }).orElse(null);
     }
 

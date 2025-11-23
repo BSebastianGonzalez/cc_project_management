@@ -28,6 +28,9 @@ public class Proyecto {
     private String justificacion;
     private LocalDateTime fechaCreacion;
 
+    private String nivelEstudio;
+    private List<Long> lineasInvestigacionIds;
+
     @OneToMany(mappedBy = "proyecto", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<Archivo> archivos;

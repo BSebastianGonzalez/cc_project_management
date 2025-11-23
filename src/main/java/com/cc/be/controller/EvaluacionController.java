@@ -2,12 +2,14 @@ package com.cc.be.controller;
 
 import com.cc.be.dto.AsignarEvaluacionDTO;
 import com.cc.be.dto.CalificarItemDTO;
+import com.cc.be.dto.EditarItemEvaluadoDTO;
 import com.cc.be.dto.ItemEvaluadoResponseDTO;
 import com.cc.be.model.EstadoEvaluacion;
 import com.cc.be.model.Evaluacion;
 import com.cc.be.model.ItemEvaluado;
 import com.cc.be.service.EvaluacionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -72,6 +74,21 @@ public class EvaluacionController {
     public List<Evaluacion> getTodasEvaluaciones() {
         return evaluacionService.getTodasEvaluaciones();
     }
+
+    @GetMapping("/proyecto/{proyectoId}")
+    public ResponseEntity<List<Evaluacion>> obtenerPorProyecto(@PathVariable Long proyectoId) {
+        return ResponseEntity.ok(evaluacionService.getEvaluacionesPorProyecto(proyectoId));
+    }
+
+    @PutMapping("/{evaluacionId}/editar")
+    public ResponseEntity<?> editarEvaluacion(
+            @PathVariable Long evaluacionId,
+            @RequestBody List<EditarItemEvaluadoDTO> itemsEditados) {
+
+        evaluacionService.editarEvaluacion(evaluacionId, itemsEditados);
+        return ResponseEntity.ok("Evaluación editada correctamente");
+    }
+
 }
 
 
