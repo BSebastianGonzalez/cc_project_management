@@ -10,5 +10,6 @@ import java.util.List;
 public interface EvaluacionRepository extends JpaRepository<Evaluacion, Long> {
     List<Evaluacion> findByProyectoId(Long proyectoId);
     List<Evaluacion> findByEstado(EstadoEvaluacion estado);
+
 }
 

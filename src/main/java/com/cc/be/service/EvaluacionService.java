@@ -1,6 +1,7 @@
 package com.cc.be.service;
 
 import com.cc.be.dto.CalificarItemDTO;
+import com.cc.be.dto.EditarItemEvaluadoDTO;
 import com.cc.be.dto.ItemEvaluadoResponseDTO;
 import com.cc.be.model.*;
 import com.cc.be.repository.EvaluacionRepository;
@@ -190,5 +191,43 @@ public class EvaluacionService {
     public Evaluacion getEvaluacionPorId(Long id) {
         return evaluacionRepository.findById(id).orElse(null);
     }
+
+    public List<Evaluacion> getEvaluacionesPorProyecto(Long proyectoId) {
+        return evaluacionRepository.findByProyectoId(proyectoId);
+    }
+
+    // 7. Editar evaluación para administrador
+    public void editarEvaluacion(Long evaluacionId, List<EditarItemEvaluadoDTO> itemsEditados) {
+
+        Evaluacion evaluacion = evaluacionRepository.findById(evaluacionId)
+                .orElseThrow(() -> new RuntimeException("Evaluación no encontrada"));
+
+        // 1. Editar cada item evaluado
+        for (EditarItemEvaluadoDTO dto : itemsEditados) {
+
+            ItemEvaluado item = itemEvaluadoRepository.findById(dto.getItemEvaluadoId())
+                    .orElseThrow(() -> new RuntimeException("Item evaluado no encontrado"));
+
+            // Seguridad: verificar que el item pertenece a esta evaluación
+            if (!item.getEvaluacion().getId().equals(evaluacionId)) {
+                throw new RuntimeException("El item evaluado no pertenece a la evaluación");
+            }
+
+            // Editar valores
+            item.setCalificacion(dto.getCalificacion());
+            item.setObservacion(dto.getObservacion());
+            itemEvaluadoRepository.save(item);
+        }
+
+        // 2. Recalcular calificación total REAL
+        int nuevaCalificacionTotal = evaluacion.getItems().stream()
+                .mapToInt(ItemEvaluado::getCalificacion)
+                .sum();
+
+        evaluacion.setCalificacionTotal(nuevaCalificacionTotal);
+
+        evaluacionRepository.save(evaluacion);
+    }
+
 }
 
