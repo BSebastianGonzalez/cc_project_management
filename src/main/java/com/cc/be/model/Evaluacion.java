@@ -1,9 +1,6 @@
 package com.cc.be.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,12 +22,12 @@ public class Evaluacion {
 
     @ManyToOne
     @JoinColumn(name = "proyecto_id")
-    @JsonBackReference
+    @JsonIgnoreProperties("evaluaciones")
     private Proyecto proyecto;
 
     @ManyToOne
     @JoinColumn(name = "formato_id")
-    @JsonBackReference
+    @JsonIgnoreProperties("evaluaciones")
     private Formato formato;
 
     private Long evaluadorId;
