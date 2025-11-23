@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,6 +26,8 @@ public class ProyectoService {
         proyecto.setObjetivoGeneral(dto.getObjetivoGeneral());
         proyecto.setObjetivoEspecifico(dto.getObjetivoEspecifico());
         proyecto.setJustificacion(dto.getJustificacion());
+
+        proyecto.setFechaCreacion(LocalDateTime.now());
 
         return proyectoRepository.save(proyecto);
     }
