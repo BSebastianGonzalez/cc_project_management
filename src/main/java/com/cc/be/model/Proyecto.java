@@ -1,5 +1,6 @@
 package com.cc.be.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,5 +24,6 @@ public class Proyecto {
     private String justificacion;
 
     @OneToMany(mappedBy = "proyecto", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Archivo> archivos;
 }
