@@ -18,3 +18,4 @@ com\cc\be\repository\ItemFormatoRepository.class
 com\cc\be\controller\FormatoController.class
 com\cc\be\service\ProyectoService.class
 com\cc\be\service\ArchivoService.class
+com\cc\be\model\Evaluacion.class

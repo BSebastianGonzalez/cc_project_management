@@ -1,5 +1,6 @@
 package com.cc.be.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,5 +22,6 @@ public class Archivo {
 
     @ManyToOne
     @JoinColumn(name = "proyecto_id")
+    @JsonBackReference
     private Proyecto proyecto;
 }
