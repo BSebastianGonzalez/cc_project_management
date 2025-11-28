@@ -46,4 +46,9 @@ public class ProyectoController {
     public List<Archivo> getArchivos(@PathVariable Long id) {
         return proyectoService.getArchivosByProyectoId(id);
     }
+
+    @GetMapping("/investigador/{investigadorId}")
+    public List<Proyecto> getByInvestigadorId(@PathVariable Long investigadorId) {
+        return proyectoService.getProyectosByInvestigadorId(investigadorId);
+    }
 }

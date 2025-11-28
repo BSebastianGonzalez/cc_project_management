@@ -77,9 +77,8 @@ public class ArchivoService {
                 "video/mp4", "video/webm", "video/ogg", "audio/mpeg", "audio/mp3"
         );
 
-        // Documentos (PDF, Excel, Word, etc.)
+        // Documentos (excepto PDF, que queremos visualizar)
         Set<String> rawTypes = Set.of(
-                "application/pdf",
                 "application/msword",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 "application/vnd.ms-excel",
@@ -87,12 +86,18 @@ public class ArchivoService {
                 "text/plain"
         );
 
+        // PDF DEBE ABRIRSE EN EL NAVEGADOR
+        if (mime.equals("application/pdf")) {
+            return "auto";  // Cloudinary sirve PDF de forma visualizable
+        }
+
         if (imageTypes.contains(mime)) return "image";
         if (videoTypes.contains(mime)) return "video";
         if (rawTypes.contains(mime)) return "raw";
 
         return "auto"; // fallback
     }
+
 
     // -----------------------------------------------------
     // public_id sin extensión
