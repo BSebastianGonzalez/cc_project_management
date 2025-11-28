@@ -6,6 +6,7 @@ import java.util.List;
 
 @Data
 public class ProyectoDTO {
+    private Long investigadorId;
     private String titulo;
     private String resumen;
     private String palabrasClave;

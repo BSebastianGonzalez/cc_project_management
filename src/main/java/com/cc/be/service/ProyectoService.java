@@ -20,6 +20,7 @@ public class ProyectoService {
 
     public Proyecto createProyecto(ProyectoDTO dto) {
         Proyecto proyecto = new Proyecto();
+        proyecto.setInvestigadorId(dto.getInvestigadorId());
         proyecto.setTitulo(dto.getTitulo());
         proyecto.setResumen(dto.getResumen());
         proyecto.setPalabrasClave(dto.getPalabrasClave());
@@ -47,6 +48,7 @@ public class ProyectoService {
     public Proyecto updateProyecto(Long id, ProyectoDTO dto) {
         return proyectoRepository.findById(id).map(proyecto -> {
 
+            proyecto.setInvestigadorId(dto.getInvestigadorId());
             proyecto.setTitulo(dto.getTitulo());
             proyecto.setResumen(dto.getResumen());
             proyecto.setPalabrasClave(dto.getPalabrasClave());
@@ -73,5 +75,9 @@ public class ProyectoService {
         return proyectoRepository.findById(id)
                 .map(Proyecto::getArchivos)
                 .orElse(Collections.emptyList());
+    }
+
+    public List<Proyecto> getProyectosByInvestigadorId(Long investigadorId) {
+        return proyectoRepository.findByInvestigadorId(investigadorId);
     }
 }

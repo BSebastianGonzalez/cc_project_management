@@ -20,6 +20,7 @@ public class Proyecto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private Long investigadorId;
     private String titulo;
     private String resumen;
     private String palabrasClave;
