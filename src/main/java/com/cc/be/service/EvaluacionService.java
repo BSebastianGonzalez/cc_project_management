@@ -25,7 +25,7 @@ public class EvaluacionService {
     private final FormatoRepository formatoRepository;
 
     // 1. Crear/Asignar evaluación
-    public Evaluacion asignarEvaluacion(Long proyectoId, Long formatoId, Long evaluadorId, Integer tiempoLimiteHoras) {
+    public Evaluacion asignarEvaluacion(Long proyectoId, Long formatoId, Long evaluadorId, Integer tiempoLimiteHoras, int calificacionRequerida) {
         Proyecto proyecto = proyectoRepository.findById(proyectoId)
                 .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
 
@@ -55,6 +55,7 @@ public class EvaluacionService {
         evaluacion.setEstado(EstadoEvaluacion.ASIGNADA);
         evaluacion.setFechaAsignacion(LocalDateTime.now());
         evaluacion.setTiempoLimiteHoras(tiempoLimiteHoras);
+        evaluacion.setCalificacionRequerida(calificacionRequerida);
 
         return evaluacionRepository.save(evaluacion);
     }
@@ -171,6 +172,8 @@ public class EvaluacionService {
 
         evaluacion.setCalificacionTotal(calificacionTotal);
 
+        evaluacion.setAprobada(calificacionTotal >= evaluacion.getCalificacionRequerida());
+
         // 3. Finalizar evaluación
         evaluacion.setEstado(EstadoEvaluacion.COMPLETADA);
         evaluacion.setFechaFinalizacion(LocalDateTime.now());
@@ -225,6 +228,7 @@ public class EvaluacionService {
                 .sum();
 
         evaluacion.setCalificacionTotal(nuevaCalificacionTotal);
+        evaluacion.setAprobada(nuevaCalificacionTotal >= evaluacion.getCalificacionRequerida());
 
         evaluacionRepository.save(evaluacion);
     }

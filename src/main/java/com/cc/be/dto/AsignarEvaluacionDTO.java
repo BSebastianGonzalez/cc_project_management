@@ -8,4 +8,5 @@ public class AsignarEvaluacionDTO {
     private Long formatoId;
     private Long evaluadorId;
     private Integer tiempoLimiteHoras;
+    private int calificacionRequerida;
 }

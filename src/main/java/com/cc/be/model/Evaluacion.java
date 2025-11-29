@@ -40,6 +40,8 @@ public class Evaluacion {
 
     private Integer tiempoLimiteHoras;
     private Integer calificacionTotal;
+    private int calificacionRequerida;
+    private boolean aprobada;
 
     @OneToMany(mappedBy = "evaluacion", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
