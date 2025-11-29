@@ -2,8 +2,10 @@ package com.cc.be.service;
 
 import com.cc.be.dto.FormatoDTO;
 import com.cc.be.dto.ItemFormatoDTO;
+import com.cc.be.model.Criterio;
 import com.cc.be.model.Formato;
 import com.cc.be.model.ItemFormato;
+import com.cc.be.repository.CriterioRepository;
 import com.cc.be.repository.FormatoRepository;
 import com.cc.be.repository.ItemFormatoRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
 public class FormatoService {
     private final FormatoRepository formatoRepository;
     private final ItemFormatoRepository itemRepository;
+    private final CriterioRepository criterioRepository;
 
     public Formato createFormato(FormatoDTO dto) {
 
@@ -28,22 +31,31 @@ public class FormatoService {
         formato.setDescripcion(dto.getDescripcion());
         formato.setInstitucion(dto.getInstitucion());
         formato.setActivo(dto.isActivo());
+
         List<ItemFormato> items = dto.getItems().stream().map(i -> {
+
+            Criterio criterio = criterioRepository.findById(i.getCriterioId())
+                    .orElseThrow(() -> new RuntimeException("Criterio no encontrado"));
+
             ItemFormato item = new ItemFormato();
             item.setNombre(i.getNombre());
             item.setDescripcion(i.getDescripcion());
             item.setPeso(i.getPeso());
+            item.setCriterio(criterio);
             item.setFormato(formato);
+
             return item;
         }).collect(Collectors.toList());
 
         formato.setItems(items);
+
         if (formato.getPesoTotal() != 100) {
-            throw new RuntimeException("El peso total debe ser exactamente 100. Actual: " + formato.getPesoTotal());
+            throw new RuntimeException("El peso total debe ser exactamente 100.");
         }
 
         return formatoRepository.save(formato);
     }
+
 
     public Formato updateFormato(Long id, FormatoDTO dto) {
 
@@ -73,18 +85,23 @@ public class FormatoService {
     }
 
     public ItemFormato addItem(Long formatoId, ItemFormatoDTO dto) {
+
         Formato formato = formatoRepository.findById(formatoId)
                 .orElseThrow(() -> new RuntimeException("Formato no encontrado"));
+
+        Criterio criterio = criterioRepository.findById(dto.getCriterioId())
+                .orElseThrow(() -> new RuntimeException("Criterio no encontrado"));
 
         ItemFormato item = new ItemFormato();
         item.setNombre(dto.getNombre());
         item.setDescripcion(dto.getDescripcion());
         item.setPeso(dto.getPeso());
         item.setFormato(formato);
+        item.setCriterio(criterio);
 
         int nuevoPeso = formato.getPesoTotal() + dto.getPeso();
         if (nuevoPeso > 100) {
-            throw new RuntimeException("Agregar este item supera el peso máximo (100). Peso actual: " + formato.getPesoTotal());
+            throw new RuntimeException("Agregar este item supera el peso máximo (100).");
         }
 
         formato.getItems().add(item);
@@ -92,6 +109,7 @@ public class FormatoService {
 
         return item;
     }
+
 
     @DeleteMapping("/formatos/{formatoId}/items/{itemId}")
     public ResponseEntity<?> deleteItem(
@@ -128,6 +146,18 @@ public class FormatoService {
 
     public void deleteFormato(Long id) {
         formatoRepository.deleteById(id);
+    }
+
+    public ItemFormato cambiarCriterio(Long itemId, Long criterioId) {
+
+        ItemFormato item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new RuntimeException("Item no encontrado"));
+
+        Criterio criterio = criterioRepository.findById(criterioId)
+                .orElseThrow(() -> new RuntimeException("Criterio no encontrado"));
+
+        item.setCriterio(criterio);
+        return itemRepository.save(item);
     }
 }
 
