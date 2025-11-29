@@ -28,7 +28,8 @@ public class EvaluacionController {
                 dto.getProyectoId(),
                 dto.getFormatoId(),
                 dto.getEvaluadorId(),
-                dto.getTiempoLimiteHoras()
+                dto.getTiempoLimiteHoras(),
+                dto.getCalificacionRequerida()
         );
     }
 
