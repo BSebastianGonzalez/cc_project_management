@@ -61,28 +61,43 @@ public class FormatoService {
 
         Formato formato = formatoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Formato no encontrado"));
+
         formato.setNombre(dto.getNombre());
         formato.setDescripcion(dto.getDescripcion());
         formato.setInstitucion(dto.getInstitucion());
         formato.setActivo(dto.isActivo());
+
+        // Primero limpiar items viejos
         formato.getItems().clear();
         formatoRepository.flush();
+
+        // Crear nuevos items
         List<ItemFormato> nuevosItems = dto.getItems().stream().map(i -> {
             ItemFormato item = new ItemFormato();
             item.setNombre(i.getNombre());
             item.setDescripcion(i.getDescripcion());
             item.setPeso(i.getPeso());
             item.setFormato(formato);
+
+            // Vincular criterio si existe
+            if (i.getCriterioId() != null) {
+                Criterio criterio = criterioRepository.findById(i.getCriterioId())
+                        .orElseThrow(() -> new RuntimeException("Criterio no encontrado"));
+                item.setCriterio(criterio);
+            }
+
             return item;
         }).collect(Collectors.toList());
 
         formato.setItems(nuevosItems);
+
         if (formato.getPesoTotal() != 100) {
             throw new RuntimeException("El peso total debe ser exactamente 100. Actual: " + formato.getPesoTotal());
         }
 
         return formatoRepository.save(formato);
     }
+
 
     public ItemFormato addItem(Long formatoId, ItemFormatoDTO dto) {
 

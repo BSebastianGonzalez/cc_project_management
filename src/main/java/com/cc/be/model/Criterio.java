@@ -21,7 +21,7 @@ public class Criterio {
 
     private String nombre;
 
-    @OneToMany(mappedBy = "criterio")
+    @OneToMany(mappedBy = "criterio", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<ItemFormato> items = new ArrayList<>();
 }
