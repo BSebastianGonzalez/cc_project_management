@@ -2,6 +2,7 @@ package com.cc.be.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,17 @@ public class ItemFormato {
     private int peso;
 
     @ManyToOne
+    @JoinColumn(name = "criterio_id")
+    @JsonBackReference
+    private Criterio criterio;
+
+    @ManyToOne
     @JoinColumn(name = "formato_id")
     @JsonBackReference
     private Formato formato;
+
+    @JsonProperty("criterioNombre")
+    public String getCriterioNombre() {
+        return criterio != null ? criterio.getNombre() : null;
+    }
 }

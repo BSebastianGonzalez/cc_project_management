@@ -1,3 +1,4 @@
+com\cc\be\model\Criterio.class
 com\cc\be\dto\FormatoDTO.class
 com\cc\be\model\Formato.class
 com\cc\be\model\EstadoEvaluacion.class
@@ -13,7 +14,9 @@ com\cc\be\dto\AsignarEvaluacionDTO.class
 com\cc\be\repository\ItemFormatoRepository.class
 com\cc\be\controller\FormatoController.class
 com\cc\be\service\ProyectoService.class
+com\cc\be\dto\CriterioDTO.class
 com\cc\be\service\ArchivoService.class
+com\cc\be\controller\CriterioController.class
 com\cc\be\dto\EditarItemEvaluadoDTO.class
 com\cc\be\model\Archivo.class
 com\cc\be\CcPmApplication.class
@@ -24,7 +27,9 @@ com\cc\be\service\EvaluacionService.class
 com\cc\be\dto\CalificarItemDTO.class
 com\cc\be\repository\FormatoRepository.class
 com\cc\be\controller\ArchivoController.class
+com\cc\be\service\CriterioService.class
 com\cc\be\repository\EvaluacionRepository.class
+com\cc\be\repository\CriterioRepository.class
 com\cc\be\dto\ItemEvaluadoResponseDTO.class
 com\cc\be\controller\EvaluacionController.class
 com\cc\be\model\Evaluacion.class

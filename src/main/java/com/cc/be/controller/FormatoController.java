@@ -98,4 +98,12 @@ public class FormatoController {
         return ResponseEntity.ok("Formato " + estado + " correctamente");
     }
 
+    @PutMapping("/items/{itemId}/criterio/{criterioId}")
+    public ItemFormato cambiarCriterio(
+            @PathVariable Long itemId,
+            @PathVariable Long criterioId) {
+        return formatoService.cambiarCriterio(itemId, criterioId);
+    }
+
+
 }
