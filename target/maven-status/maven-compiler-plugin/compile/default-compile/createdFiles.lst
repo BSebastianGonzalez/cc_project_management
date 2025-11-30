@@ -10,6 +10,7 @@ com\cc\be\config\WebConfig.class
 com\cc\be\controller\ProyectoController.class
 com\cc\be\repository\ArchivoRepository.class
 com\cc\be\config\CloudinaryConfig.class
+com\cc\be\service\NotificacionService.class
 com\cc\be\dto\AsignarEvaluacionDTO.class
 com\cc\be\repository\ItemFormatoRepository.class
 com\cc\be\controller\FormatoController.class
@@ -30,6 +31,7 @@ com\cc\be\service\EvaluacionService.class
 com\cc\be\dto\CalificarItemDTO.class
 com\cc\be\repository\FormatoRepository.class
 com\cc\be\controller\ArchivoController.class
+com\cc\be\controller\NotificacionController.class
 com\cc\be\service\CriterioService.class
 com\cc\be\repository\EvaluacionRepository.class
 com\cc\be\repository\CriterioRepository.class
