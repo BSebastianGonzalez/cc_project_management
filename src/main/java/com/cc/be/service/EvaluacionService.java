@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,13 +23,13 @@ public class EvaluacionService {
     private final ItemEvaluadoRepository itemEvaluadoRepository;
     private final ProyectoRepository proyectoRepository;
     private final FormatoRepository formatoRepository;
+    private final NotificacionService notificacionService;
 
-    // 1. Crear/Asignar evaluación
-    public Evaluacion asignarEvaluacion(Long proyectoId, Long formatoId, Long evaluadorId, Integer tiempoLimiteHoras, int calificacionRequerida) {
+    // 1. Crear/Asignar evaluación (ahora recibe adminId)
+    public Evaluacion asignarEvaluacion(Long proyectoId, Long formatoId, Long evaluadorId, Integer tiempoLimiteHoras, int calificacionRequerida, Long adminId) {
         Proyecto proyecto = proyectoRepository.findById(proyectoId)
                 .orElseThrow(() -> new RuntimeException("Proyecto no encontrado"));
 
-        // Verificar si existe alguna evaluación activa
         List<Evaluacion> evaluacionesExistentes = evaluacionRepository.findByProyectoId(proyectoId);
         boolean tieneActiva = evaluacionesExistentes.stream()
                 .anyMatch(e -> e.getEstado() == EstadoEvaluacion.ASIGNADA || e.getEstado() == EstadoEvaluacion.ACEPTADA);
@@ -39,7 +38,6 @@ public class EvaluacionService {
             throw new RuntimeException("Proyecto ya tiene una evaluación activa");
         }
 
-        // Si quieres también puedes bloquear si ya está COMPLETADA
         boolean yaCompletada = evaluacionesExistentes.stream()
                 .anyMatch(e -> e.getEstado() == EstadoEvaluacion.COMPLETADA);
         if (yaCompletada) {
@@ -58,11 +56,18 @@ public class EvaluacionService {
         evaluacion.setTiempoLimiteHoras(tiempoLimiteHoras);
         evaluacion.setCalificacionRequerida(calificacionRequerida);
         evaluacion.setValidada(false);
+        evaluacion.setAsignadorAdminId(adminId);
 
-        return evaluacionRepository.save(evaluacion);
+        Evaluacion saved = evaluacionRepository.save(evaluacion);
+
+        // Notificar al evaluador con remitente = adminId
+        if (evaluadorId != null) {
+            String mensaje = "Se te asignó la evaluación (id: " + saved.getId() + ") del proyecto (id: " + proyecto.getId() + ").";
+            notificacionService.crearNotificacion(evaluadorId, "Nueva evaluación asignada", mensaje, "EVALUACION_ASIGNADA", adminId);
+        }
+
+        return saved;
     }
-
-
 
     // 2. Aceptar evaluación
     public Evaluacion aceptarEvaluacion(Long evaluacionId) {
@@ -76,12 +81,28 @@ public class EvaluacionService {
         LocalDateTime limite = evaluacion.getFechaAsignacion().plusHours(evaluacion.getTiempoLimiteHoras());
         if (LocalDateTime.now().isAfter(limite)) {
             evaluacion.setEstado(EstadoEvaluacion.RECHAZADA);
-            return evaluacionRepository.save(evaluacion);
+            Evaluacion saved = evaluacionRepository.save(evaluacion);
+            // Notificar al admin asignador sobre rechazo por timeout
+            Long adminId = saved.getAsignadorAdminId();
+            if (adminId != null) {
+                String msg = "La evaluación (id: " + saved.getId() + ") del proyecto (id: " + saved.getProyecto().getId() + ") fue rechazada por timeout.";
+                notificacionService.crearNotificacion(adminId, "Evaluación rechazada (timeout)", msg, "EVALUACION_ESTADO", saved.getEvaluadorId());
+            }
+            return saved;
         }
 
         evaluacion.setEstado(EstadoEvaluacion.ACEPTADA);
         evaluacion.setFechaAceptacion(LocalDateTime.now());
-        return evaluacionRepository.save(evaluacion);
+        Evaluacion saved = evaluacionRepository.save(evaluacion);
+
+        // Notificar al admin asignador
+        Long adminId = saved.getAsignadorAdminId();
+        if (adminId != null) {
+            String msg = "La evaluación (id: " + saved.getId() + ") del proyecto (id: " + saved.getProyecto().getId() + ") fue aceptada por el evaluador.";
+            notificacionService.crearNotificacion(adminId, "Evaluación aceptada", msg, "EVALUACION_ESTADO", saved.getEvaluadorId());
+        }
+
+        return saved;
     }
 
     // 3. Rechazar evaluación
@@ -94,56 +115,54 @@ public class EvaluacionService {
         }
 
         evaluacion.setEstado(EstadoEvaluacion.RECHAZADA);
-        return evaluacionRepository.save(evaluacion);
+        Evaluacion saved = evaluacionRepository.save(evaluacion);
+
+        // Notificar al admin asignador
+        Long adminId = saved.getAsignadorAdminId();
+        if (adminId != null) {
+            String msg = "La evaluación (id: " + saved.getId() + ") del proyecto (id: " + saved.getProyecto().getId() + ") fue rechazada por el evaluador.";
+            notificacionService.crearNotificacion(adminId, "Evaluación rechazada", msg, "EVALUACION_ESTADO", saved.getEvaluadorId());
+        }
+
+        return saved;
     }
 
-    // 4. Calificar item
+    // 4. Calificar item (sin cambios en notificaciones)
     public ItemEvaluadoResponseDTO calificarItem(Long evaluacionId, CalificarItemDTO dto) {
-        // 1. Obtener evaluación
         Evaluacion evaluacion = evaluacionRepository.findById(evaluacionId)
                 .orElseThrow(() -> new RuntimeException("Evaluación no encontrada"));
 
-        // 2. Verificar estado
         if (evaluacion.getEstado() != EstadoEvaluacion.ACEPTADA) {
             throw new RuntimeException("Evaluación no aceptada, no se puede calificar");
         }
 
-        // 3. Verificar que el item pertenece al formato
         ItemFormato itemFormato = evaluacion.getFormato().getItems().stream()
                 .filter(item -> item.getId().equals(dto.getItemFormatoId()))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("El item no pertenece al formato asignado"));
 
-        // 4. Validar calificación
         if (dto.getCalificacion() > itemFormato.getPeso()) {
             throw new RuntimeException("La calificación no puede superar el peso máximo del item (" + itemFormato.getPeso() + ")");
         }
 
-        // 5. Buscar si ya existe calificación
         ItemEvaluado itemEvaluado = evaluacion.getItems().stream()
                 .filter(i -> i.getItemFormatoId().equals(dto.getItemFormatoId()))
                 .findFirst()
                 .orElse(new ItemEvaluado());
 
-        // 6. Setear valores
         itemEvaluado.setItemFormatoId(dto.getItemFormatoId());
         itemEvaluado.setCalificacion(dto.getCalificacion());
         itemEvaluado.setObservacion(dto.getObservacion());
         itemEvaluado.setEvaluacion(evaluacion);
 
-        // 7. Agregar si es nuevo
         if (evaluacion.getItems().stream().noneMatch(i -> i.getItemFormatoId().equals(dto.getItemFormatoId()))) {
             evaluacion.getItems().add(itemEvaluado);
         }
 
-        // 8. Guardar (cascada)
         evaluacionRepository.save(evaluacion);
 
-        // 9. Retornar DTO limpio
         return new ItemEvaluadoResponseDTO(itemEvaluado);
     }
-
-
 
     // 5. Finalizar evaluación
     public Evaluacion finalizarEvaluacion(Long evaluacionId) {
@@ -154,7 +173,6 @@ public class EvaluacionService {
             throw new RuntimeException("Evaluación no aceptada, no se puede finalizar");
         }
 
-        // 1. Validar que todos los items del formato tengan calificación
         List<Long> idsItemsFormato = evaluacion.getFormato().getItems().stream()
                 .map(ItemFormato::getId)
                 .toList();
@@ -167,24 +185,28 @@ public class EvaluacionService {
             throw new RuntimeException("No todos los items del formato han sido calificados");
         }
 
-        // 2. Calcular calificación total sumando directamente las calificaciones de los items
         int calificacionTotal = evaluacion.getItems().stream()
                 .mapToInt(ItemEvaluado::getCalificacion)
                 .sum();
 
         evaluacion.setCalificacionTotal(calificacionTotal);
-
         evaluacion.setAprobada(calificacionTotal >= evaluacion.getCalificacionRequerida());
-
-        // 3. Finalizar evaluación
         evaluacion.setEstado(EstadoEvaluacion.COMPLETADA);
         evaluacion.setFechaFinalizacion(LocalDateTime.now());
 
-        return evaluacionRepository.save(evaluacion);
+        Evaluacion saved = evaluacionRepository.save(evaluacion);
+
+        // Notificar al admin asignador
+        Long adminId = saved.getAsignadorAdminId();
+        if (adminId != null) {
+            String msg = "La evaluación (id: " + saved.getId() + ") del proyecto (id: " + saved.getProyecto().getId() + ") fue finalizada por el evaluador.";
+            notificacionService.crearNotificacion(adminId, "Evaluación finalizada", msg, "EVALUACION_FINALIZADA", saved.getEvaluadorId());
+        }
+
+        return saved;
     }
 
-
-    // 6. Consultar evaluaciones
+    // Consultas y edición se mantienen (sin cambios significativos)
     public List<Evaluacion> getEvaluacionesPorEstado(EstadoEvaluacion estado) {
         return evaluacionRepository.findByEstado(estado);
     }
@@ -201,30 +223,25 @@ public class EvaluacionService {
         return evaluacionRepository.findByProyectoId(proyectoId);
     }
 
-    // 7. Editar evaluación para administrador
     public void editarEvaluacion(Long evaluacionId, List<EditarItemEvaluadoDTO> itemsEditados) {
 
         Evaluacion evaluacion = evaluacionRepository.findById(evaluacionId)
                 .orElseThrow(() -> new RuntimeException("Evaluación no encontrada"));
 
-        // 1. Editar cada item evaluado
         for (EditarItemEvaluadoDTO dto : itemsEditados) {
 
             ItemEvaluado item = itemEvaluadoRepository.findById(dto.getItemEvaluadoId())
                     .orElseThrow(() -> new RuntimeException("Item evaluado no encontrado"));
 
-            // Seguridad: verificar que el item pertenece a esta evaluación
             if (!item.getEvaluacion().getId().equals(evaluacionId)) {
                 throw new RuntimeException("El item evaluado no pertenece a la evaluación");
             }
 
-            // Editar valores
             item.setCalificacion(dto.getCalificacion());
             item.setObservacion(dto.getObservacion());
             itemEvaluadoRepository.save(item);
         }
 
-        // 2. Recalcular calificación total REAL
         int nuevaCalificacionTotal = evaluacion.getItems().stream()
                 .mapToInt(ItemEvaluado::getCalificacion)
                 .sum();
@@ -235,7 +252,8 @@ public class EvaluacionService {
         evaluacionRepository.save(evaluacion);
     }
 
-    public Evaluacion validarEvaluacion(Long evaluacionId) {
+    // Validar evaluación (ahora recibe adminId para usar como remitente)
+    public Evaluacion validarEvaluacion(Long evaluacionId, Long adminId) {
         Evaluacion evaluacion = evaluacionRepository.findById(evaluacionId)
                 .orElseThrow(() -> new RuntimeException("Evaluación no encontrada"));
 
@@ -248,9 +266,18 @@ public class EvaluacionService {
         }
 
         evaluacion.setValidada(true);
-        return evaluacionRepository.save(evaluacion);
+        Evaluacion saved = evaluacionRepository.save(evaluacion);
+
+        Long evaluador = saved.getEvaluadorId();
+        if (evaluador != null) {
+            String mensaje = "La evaluación (id: " + saved.getId() + ") fue validada. Se ha habilitado para que suba los documentos relacionados con el pago.";
+            notificacionService.crearNotificacion(evaluador, "Evaluación validada", mensaje, "EVALUACION_VALIDADA", adminId);
+        }
+
+        return saved;
     }
 
+    // Invalidar evaluación (usa dto.adminId como remitente y asignador en la nueva evaluación)
     public Evaluacion invalidarEvaluacion(Long evaluacionId, InvalidarEvaluacionDTO dto) {
         Evaluacion evaluacion = evaluacionRepository.findById(evaluacionId)
                 .orElseThrow(() -> new RuntimeException("Evaluación no encontrada"));
@@ -259,7 +286,6 @@ public class EvaluacionService {
             throw new RuntimeException("Evaluación ya invalidada");
         }
 
-        // Requiere que esté COMPLETADA (ajustable según reglas)
         if (evaluacion.getEstado() != EstadoEvaluacion.COMPLETADA) {
             throw new RuntimeException("Solo se puede invalidar una evaluación COMPLETADA");
         }
@@ -283,9 +309,28 @@ public class EvaluacionService {
         nueva.setValidada(false);
         nueva.setInvalidada(false);
         nueva.setEvaluacionOriginal(evaluacion);
+        nueva.setAsignadorAdminId(dto.getAdminId());
 
-        return evaluacionRepository.save(nueva);
+        Evaluacion savedNueva = evaluacionRepository.save(nueva);
+
+        // Notificar al evaluador original sobre invalidación (remitente = adminId)
+        Long evaluadorOriginal = evaluacion.getEvaluadorId();
+        if (evaluadorOriginal != null) {
+            String mensaje = "Tu evaluación (id: " + evaluacion.getId() + ") fue invalidada por el administrador. Motivo: " + dto.getMotivo();
+            notificacionService.crearNotificacion(evaluadorOriginal, "Evaluación invalidada", mensaje, "EVALUACION_INVALIDADA", dto.getAdminId());
+        }
+
+        // Notificar al evaluador asignado para la re-evaluación
+        if (asignado != null) {
+            String mensajeAsignado;
+            if (!asignado.equals(evaluadorOriginal)) {
+                mensajeAsignado = "Se te asignó una re-evaluación (id: " + savedNueva.getId() + ") por invalidación (motivo: " + dto.getMotivo() + "). Eres el evaluador designado.";
+            } else {
+                mensajeAsignado = "Se te asignó nuevamente la evaluación (id: " + savedNueva.getId() + ") por invalidación (motivo: " + dto.getMotivo() + "). Debes realizarla de nuevo.";
+            }
+            notificacionService.crearNotificacion(asignado, "Re-evaluación asignada", mensajeAsignado, "EVALUACION_REASIGNADA", dto.getAdminId());
+        }
+
+        return savedNueva;
     }
-
 }
-

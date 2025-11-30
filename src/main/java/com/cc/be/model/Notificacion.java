@@ -19,15 +19,12 @@ public class Notificacion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private Long usuarioId;
-
     private String titulo;
     private String mensaje;
-
     private String tipo;
-
     private boolean leida = false;
-
     private LocalDateTime fecha = LocalDateTime.now();
+    private Long remitenteId;
+
 }
