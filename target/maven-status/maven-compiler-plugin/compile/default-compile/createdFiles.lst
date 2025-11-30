@@ -17,10 +17,13 @@ com\cc\be\service\ProyectoService.class
 com\cc\be\dto\CriterioDTO.class
 com\cc\be\service\ArchivoService.class
 com\cc\be\controller\CriterioController.class
+com\cc\be\model\Notificacion.class
 com\cc\be\dto\EditarItemEvaluadoDTO.class
+com\cc\be\repository\NotificacionRepository.class
 com\cc\be\model\Archivo.class
 com\cc\be\CcPmApplication.class
 com\cc\be\model\ItemFormato.class
+com\cc\be\dto\InvalidarEvaluacionDTO.class
 com\cc\be\repository\ProyectoRepository.class
 com\cc\be\repository\ItemEvaluadoRepository.class
 com\cc\be\service\EvaluacionService.class
