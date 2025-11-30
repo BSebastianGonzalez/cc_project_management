@@ -42,6 +42,18 @@ public class Evaluacion {
     private Integer calificacionTotal;
     private int calificacionRequerida;
     private boolean aprobada;
+    private boolean validada;
+
+    // Campos de invalidacion
+    private boolean invalidada;
+    private String motivoInvalidacion;
+    private LocalDateTime fechaInvalidacion;
+
+    // Referencia a la evaluación original
+    @ManyToOne
+    @JoinColumn(name = "evaluacion_original_id")
+    @JsonIgnore
+    private Evaluacion evaluacionOriginal;
 
     @OneToMany(mappedBy = "evaluacion", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference

@@ -2,6 +2,7 @@ package com.cc.be.service;
 
 import com.cc.be.dto.CalificarItemDTO;
 import com.cc.be.dto.EditarItemEvaluadoDTO;
+import com.cc.be.dto.InvalidarEvaluacionDTO;
 import com.cc.be.dto.ItemEvaluadoResponseDTO;
 import com.cc.be.model.*;
 import com.cc.be.repository.EvaluacionRepository;
@@ -56,6 +57,7 @@ public class EvaluacionService {
         evaluacion.setFechaAsignacion(LocalDateTime.now());
         evaluacion.setTiempoLimiteHoras(tiempoLimiteHoras);
         evaluacion.setCalificacionRequerida(calificacionRequerida);
+        evaluacion.setValidada(false);
 
         return evaluacionRepository.save(evaluacion);
     }
@@ -231,6 +233,58 @@ public class EvaluacionService {
         evaluacion.setAprobada(nuevaCalificacionTotal >= evaluacion.getCalificacionRequerida());
 
         evaluacionRepository.save(evaluacion);
+    }
+
+    public Evaluacion validarEvaluacion(Long evaluacionId) {
+        Evaluacion evaluacion = evaluacionRepository.findById(evaluacionId)
+                .orElseThrow(() -> new RuntimeException("Evaluación no encontrada"));
+
+        if (evaluacion.getEstado() != EstadoEvaluacion.COMPLETADA) {
+            throw new RuntimeException("Sólo se puede validar una evaluación COMPLETADA");
+        }
+
+        if (evaluacion.isValidada()) {
+            throw new RuntimeException("Evaluación ya validada");
+        }
+
+        evaluacion.setValidada(true);
+        return evaluacionRepository.save(evaluacion);
+    }
+
+    public Evaluacion invalidarEvaluacion(Long evaluacionId, InvalidarEvaluacionDTO dto) {
+        Evaluacion evaluacion = evaluacionRepository.findById(evaluacionId)
+                .orElseThrow(() -> new RuntimeException("Evaluación no encontrada"));
+
+        if (evaluacion.isInvalidada()) {
+            throw new RuntimeException("Evaluación ya invalidada");
+        }
+
+        // Requiere que esté COMPLETADA (ajustable según reglas)
+        if (evaluacion.getEstado() != EstadoEvaluacion.COMPLETADA) {
+            throw new RuntimeException("Solo se puede invalidar una evaluación COMPLETADA");
+        }
+
+        // Marcar como invalidada y guardar motivo/fecha
+        evaluacion.setInvalidada(true);
+        evaluacion.setMotivoInvalidacion(dto.getMotivo());
+        evaluacion.setFechaInvalidacion(LocalDateTime.now());
+        evaluacionRepository.save(evaluacion);
+
+        // Crear nueva evaluación para re-evaluación
+        Evaluacion nueva = new Evaluacion();
+        nueva.setProyecto(evaluacion.getProyecto());
+        nueva.setFormato(evaluacion.getFormato());
+        Long asignado = dto.getNuevoEvaluadorId() != null ? dto.getNuevoEvaluadorId() : evaluacion.getEvaluadorId();
+        nueva.setEvaluadorId(asignado);
+        nueva.setEstado(EstadoEvaluacion.ASIGNADA);
+        nueva.setFechaAsignacion(LocalDateTime.now());
+        nueva.setTiempoLimiteHoras(evaluacion.getTiempoLimiteHoras());
+        nueva.setCalificacionRequerida(evaluacion.getCalificacionRequerida());
+        nueva.setValidada(false);
+        nueva.setInvalidada(false);
+        nueva.setEvaluacionOriginal(evaluacion);
+
+        return evaluacionRepository.save(nueva);
     }
 
 }

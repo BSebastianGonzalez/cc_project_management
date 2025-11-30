@@ -11,6 +11,7 @@ C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyec
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\dto\CriterioDTO.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\dto\EditarItemEvaluadoDTO.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\dto\FormatoDTO.java
+C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\dto\InvalidarEvaluacionDTO.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\dto\ItemEvaluadoResponseDTO.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\dto\ItemFormatoDTO.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\dto\ProyectoDTO.java
@@ -21,6 +22,7 @@ C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyec
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\model\Formato.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\model\ItemEvaluado.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\model\ItemFormato.java
+C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\model\Notificacion.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\model\Proyecto.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\repository\ArchivoRepository.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\repository\CriterioRepository.java
@@ -28,6 +30,7 @@ C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyec
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\repository\FormatoRepository.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\repository\ItemEvaluadoRepository.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\repository\ItemFormatoRepository.java
+C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\repository\NotificacionRepository.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\repository\ProyectoRepository.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\service\ArchivoService.java
 C:\Users\SEBASTIAN\OneDrive\Escritorio\Universidad\8. Octavo semestre\API\Proyecto\cc_pm\src\main\java\com\cc\be\service\CriterioService.java

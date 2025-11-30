@@ -1,14 +1,12 @@
 package com.cc.be.controller;
 
-import com.cc.be.dto.AsignarEvaluacionDTO;
-import com.cc.be.dto.CalificarItemDTO;
-import com.cc.be.dto.EditarItemEvaluadoDTO;
-import com.cc.be.dto.ItemEvaluadoResponseDTO;
+import com.cc.be.dto.*;
 import com.cc.be.model.EstadoEvaluacion;
 import com.cc.be.model.Evaluacion;
 import com.cc.be.model.ItemEvaluado;
 import com.cc.be.service.EvaluacionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -90,6 +88,17 @@ public class EvaluacionController {
         return ResponseEntity.ok("Evaluación editada correctamente");
     }
 
+    @PostMapping("/{id}/validar")
+    public ResponseEntity<Evaluacion> validarEvaluacion(@PathVariable Long id) {
+        Evaluacion evaluacionValidada = evaluacionService.validarEvaluacion(id);
+        return ResponseEntity.ok(evaluacionValidada);
+    }
+
+    @PostMapping("/{id}/invalidar")
+    public ResponseEntity<Evaluacion> invalidarEvaluacion(@PathVariable Long id, @RequestBody InvalidarEvaluacionDTO dto) {
+        Evaluacion nueva = evaluacionService.invalidarEvaluacion(id, dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
+    }
 }
 
 
