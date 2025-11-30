@@ -3,7 +3,6 @@ package com.cc.be.controller;
 import com.cc.be.dto.*;
 import com.cc.be.model.EstadoEvaluacion;
 import com.cc.be.model.Evaluacion;
-import com.cc.be.model.ItemEvaluado;
 import com.cc.be.service.EvaluacionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,7 +26,8 @@ public class EvaluacionController {
                 dto.getFormatoId(),
                 dto.getEvaluadorId(),
                 dto.getTiempoLimiteHoras(),
-                dto.getCalificacionRequerida()
+                dto.getCalificacionRequerida(),
+                dto.getAdminId()
         );
     }
 
@@ -88,17 +88,17 @@ public class EvaluacionController {
         return ResponseEntity.ok("Evaluación editada correctamente");
     }
 
+    // Validar evaluación: ahora recibe adminId como request param
     @PostMapping("/{id}/validar")
-    public ResponseEntity<Evaluacion> validarEvaluacion(@PathVariable Long id) {
-        Evaluacion evaluacionValidada = evaluacionService.validarEvaluacion(id);
+    public ResponseEntity<Evaluacion> validarEvaluacion(@PathVariable Long id, @RequestParam Long adminId) {
+        Evaluacion evaluacionValidada = evaluacionService.validarEvaluacion(id, adminId);
         return ResponseEntity.ok(evaluacionValidada);
     }
 
+    // Invalidar evaluación (dto contiene adminId)
     @PostMapping("/{id}/invalidar")
     public ResponseEntity<Evaluacion> invalidarEvaluacion(@PathVariable Long id, @RequestBody InvalidarEvaluacionDTO dto) {
         Evaluacion nueva = evaluacionService.invalidarEvaluacion(id, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(nueva);
     }
 }
-
-

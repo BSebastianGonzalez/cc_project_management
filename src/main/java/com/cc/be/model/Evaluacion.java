@@ -49,6 +49,8 @@ public class Evaluacion {
     private String motivoInvalidacion;
     private LocalDateTime fechaInvalidacion;
 
+    private Long asignadorAdminId;
+
     // Referencia a la evaluación original
     @ManyToOne
     @JoinColumn(name = "evaluacion_original_id")
